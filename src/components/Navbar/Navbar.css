@@ -1,0 +1,30 @@
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  width: 100%;
+  background-color: rgb(7, 200, 200);
+  border-radius: 9px 9px 0px 0px;
+  padding-right: 15px;
+}
+
+header > h1 {
+  position: absolute;
+  color: white;
+}
+
+header > .user-details {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+header > .user-details > h3 {
+  margin-right: 10px;
+  color: white;
+}
+
+header > .user-details > .p-button {
+  margin-left: 10px;
+}

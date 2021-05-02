@@ -1,11 +1,11 @@
 import firebase from 'firebase/app';
+import 'firebase/auth';
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import './App.css';
-import Home from './pages/Home';
-import Login from './pages/Login';
+import { Home, Login } from './pages';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyAHs9Vt-ByLoZxak-t1IP8cp7kcS2M4VPo',
@@ -17,10 +17,9 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 
 function App() {
-  const [user, userIsLoading] = useAuthState(auth);
+  const [user, userIsLoading] = useAuthState(firebase.auth());
 
   return userIsLoading ? (
     <div

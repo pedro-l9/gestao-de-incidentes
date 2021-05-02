@@ -1,0 +1,6 @@
+.p-card {
+  background-color: white;
+  border-radius: 10px;
+  margin: 50px;
+  height: calc(100vh - 100px);
+}
