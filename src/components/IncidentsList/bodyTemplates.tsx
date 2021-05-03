@@ -2,32 +2,22 @@ import { Avatar } from 'primereact/avatar';
 
 import { Incident } from './interfaces';
 
-export const codeBodyTemplate = (incident: Incident) => {
-  return (
-    <div className="p-d-flex p-jc-center p-ai-center">
-      <span className="p-column-title">Código</span>
-      {incident.code}
-    </div>
-  );
-};
+type TransforFunction = (value: Incident) => string;
 
-export const dateBodyTemplate = (incident: Incident) => {
-  return (
-    <div className="p-d-flex p-jc-center p-ai-center">
-      <span className="p-column-title">Data</span>
-      <span>{new Intl.DateTimeFormat('pt-BR').format(incident.date)}</span>
-    </div>
-  );
-};
-
-export const descriptionBodyTemplate = (incident: Incident) => {
-  return (
-    <>
-      <span className="p-column-title">Descrição</span>
-      {incident.description}
-    </>
-  );
-};
+export const defaultBody = (
+  title: string,
+  transforFunction: TransforFunction
+) => (incident: Incident) => (
+  <div
+    className={`${title
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()}-body-value`}
+  >
+    <span className="p-column-title">{title}</span>
+    {transforFunction(incident)}
+  </div>
+);
 
 export const userBodyTemplate = ({ user }: Incident) => {
   return (
@@ -43,29 +33,15 @@ export const userBodyTemplate = ({ user }: Incident) => {
   );
 };
 
-export const priorityBodyTemplate = (incident: Incident) => {
-  return (
-    <div className="p-d-flex p-jc-center p-ai-center">
-      <span className="p-column-title">Prioridade</span>
-      {incident.priority}
-    </div>
-  );
-};
-
-export const levelBodyTemplate = (incident: Incident) => {
-  return (
-    <div className="p-d-flex p-jc-center p-ai-center">
-      <span className="p-column-title">Nível</span>
-      {incident.level}
-    </div>
-  );
-};
-
 export const statusBodyTemplate = (incident: Incident) => {
   return (
-    <div className="p-d-flex p-jc-center p-ai-center">
+    <div style={{ textAlign: 'center' }}>
       <span className="p-column-title">Status</span>
-      <span className={`customer-badge status-${incident.status}`}>
+      <span
+        className={`status-badge status-${incident.status
+          .toLowerCase()
+          .replace(' ', '-')}`}
+      >
         {incident.status}
       </span>
     </div>

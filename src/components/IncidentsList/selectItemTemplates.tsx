@@ -15,5 +15,13 @@ export const userItemTemplate = (user: User) => {
 };
 
 export const statusItemTemplate = (option: string) => {
-  return <span className={`customer-badge status-${option}`}>{option}</span>;
+  return (
+    <span
+      className={`status-badge status-${option
+        .toLowerCase()
+        .replace(' ', '-')}`}
+    >
+      {option}
+    </span>
+  );
 };

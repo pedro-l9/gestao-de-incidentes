@@ -1,14 +1,16 @@
+import { useState } from 'react';
 import firebase from 'firebase/app';
 import 'firebase/auth';
-
 import { Card } from 'primereact/card';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { IncidentsList, Navbar } from '../../components';
+
+import { IncidentDialog, IncidentsList, Navbar } from '../../components';
 
 import './Home.css';
 
 function Home() {
   const [user] = useAuthState(firebase.auth());
+  const [isDialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div
@@ -16,7 +18,15 @@ function Home() {
       className="p-d-flex p-jc-center p-ai-center"
     >
       <Card header={Navbar(user)}>
-        <IncidentsList />
+        <IncidentDialog
+          isDialogOpen={isDialogOpen}
+          setDialogOpen={setDialogOpen}
+        />
+        <IncidentsList
+          createNewIncident={() => setDialogOpen(true)}
+          viewIncident={() => setDialogOpen(true)}
+          editIncident={() => setDialogOpen(true)}
+        />
       </Card>
     </div>
   );

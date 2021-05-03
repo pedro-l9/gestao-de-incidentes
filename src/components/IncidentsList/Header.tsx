@@ -1,7 +1,7 @@
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 
-function Header(setGlobalFilter: Function) {
+function Header(setGlobalFilter: Function, createNewIncident: Function) {
   return (
     <div className="table-header">
       <div>Incidentes </div>
@@ -17,6 +17,7 @@ function Header(setGlobalFilter: Function) {
         label="Novo Incidente"
         icon="pi pi-plus"
         className="p-button-success p-button-sm p-button-raised"
+        onClick={() => createNewIncident()}
       />
     </div>
   );

@@ -1,5 +1,17 @@
 /* DataTableDemo.css */
 
+.codigo-body-value,
+.data-body-value,
+.prioridade-body-value,
+.nivel-body-value,
+.status-body-value {
+  text-align: center;
+}
+
+.p-multiselect-header {
+  display: none;
+}
+
 .p-paginator .p-paginator-current {
   margin-left: auto;
 }
@@ -44,7 +56,12 @@
 }
 
 .p-datatable.p-datatable-sm .p-paginator {
-  padding: 1rem;
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 0;
+  padding: 0 0 10px 0;
 }
 
 .p-datatable.p-datatable-sm .p-paginator-bottom {
@@ -69,11 +86,11 @@
 }
 
 .p-datatable.p-datatable-sm .p-datatable-thead:first-child th:nth-child(5) {
-  width: 120px;
+  width: 165px;
 }
 
 .p-datatable.p-datatable-sm .p-datatable-thead:first-child th:nth-child(6) {
-  width: 120px;
+  width: 140px;
 }
 
 .p-datatable.p-datatable-sm .p-datatable-thead:first-child th:nth-child(7) {
@@ -84,17 +101,11 @@
   width: 100%;
 }
 
-.p-datatable.p-datatable-sm
-  .p-datatable-thead
-  .p-filter-column:nth-child(4)
-  .p-dropdown {
+.p-datatable.p-datatable-sm .p-datatable-thead .p-filter-column .p-dropdown {
   width: 100%;
 }
 
-.p-datatable.p-datatable-sm
-  .p-datatable-thead
-  .p-filter-column:nth-child(7)
-  .p-dropdown {
+.p-datatable.p-datatable-sm .p-datatable-thead .p-filter-column .p-multiselect {
   width: 100%;
 }
 
@@ -106,6 +117,31 @@
 
 .p-datatable.p-datatable-sm .p-datatable-tbody > tr > td {
   cursor: auto;
+}
+
+.status-badge {
+  margin-left: auto;
+  border-radius: 2px;
+  padding: 0.25em 0.5rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+
+.status-em-aberto {
+  background-color: #ffcdd2;
+  color: #c63737;
+}
+
+.status-em-atendimento {
+  background-color: #ffd8b2;
+  color: #805b36;
+}
+
+.status-finalizado {
+  background-color: #c8e6c9;
+  color: #256029;
 }
 
 .p-datatable-sm .p-datatable-tbody > tr > td .p-column-title {

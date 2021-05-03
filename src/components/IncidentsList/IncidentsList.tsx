@@ -3,31 +3,38 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
-import { ChangeParams } from 'primereact/multiselect';
+import { ChangeParams, MultiSelect } from 'primereact/multiselect';
 
 import './IncidentsList.css';
 import { Incident } from './interfaces';
 import {
-  codeBodyTemplate,
-  dateBodyTemplate,
-  descriptionBodyTemplate,
   userBodyTemplate,
-  priorityBodyTemplate,
-  levelBodyTemplate,
   statusBodyTemplate,
+  defaultBody,
 } from './bodyTemplates';
 import { userItemTemplate, statusItemTemplate } from './selectItemTemplates';
 import { loadLocales } from './locales';
 import Header from './Header';
-
-const statuses = ['Finalizado', 'Atendimento'];
+import { LEVELS, PRIORITIES, STATUSES } from '../../constants';
 
 const INTERFACE_HEIGHT_WITHOUT_ROWS = 360;
 const ROW_HEIGHT = 50;
 
-function IncidentsList() {
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+interface Props {
+  createNewIncident: Function;
+  editIncident: Function;
+  viewIncident: Function;
+}
+
+function IncidentsList({
+  createNewIncident,
+  editIncident,
+  viewIncident,
+}: Props) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [globalFilter, setGlobalFilter] = useState<string | null>(null);
   const dataTable = useRef<DataTable>(null);
@@ -45,7 +52,7 @@ function IncidentsList() {
       },
       priority: 'Baixa',
       level: 'Nível 1',
-      status: 'Finalizado',
+      status: 'Em Atendimento',
     },
     {
       code: 1,
@@ -59,7 +66,7 @@ function IncidentsList() {
       },
       priority: 'Baixa',
       level: 'Nível 1',
-      status: 'Finalizado',
+      status: 'Em Aberto',
     },
     {
       code: 1,
@@ -357,25 +364,35 @@ function IncidentsList() {
     },
   ];
 
-  const users = Object.values(
+  const USERS = Object.values(
     incidents.reduce(
       (uniqueUsers, { user }) => ({ ...uniqueUsers, [user.uid]: user }),
       {}
     )
   );
 
-  function onUserChange({ value }: ChangeParams) {
-    dataTable?.current?.filter(value, 'user.uid', 'equals');
-    setSelectedUser(value);
-  }
-
   function onDateChange({ value }: ChangeParams) {
     dataTable?.current?.filter(value, 'date', 'custom');
     setSelectedDate(value);
   }
 
+  function onUserChange({ value }: ChangeParams) {
+    dataTable?.current?.filter(value, 'user.uid', 'equals');
+    setSelectedUser(value);
+  }
+
+  function onPriorityChange({ value }: ChangeParams) {
+    dataTable?.current?.filter(value, 'priority', 'equals');
+    setSelectedPriority(value);
+  }
+
+  function onLevelChange({ value }: ChangeParams) {
+    dataTable?.current?.filter(value, 'level', 'equals');
+    setSelectedLevel(value);
+  }
+
   function onStatusChange({ value }: ChangeParams) {
-    dataTable?.current?.filter(value, 'status', 'equals');
+    dataTable?.current?.filter(value, 'status', 'in');
     setSelectedStatus(value);
   }
 
@@ -396,7 +413,7 @@ function IncidentsList() {
   const userFilterField = (
     <Dropdown
       value={selectedUser}
-      options={users}
+      options={USERS}
       itemTemplate={userItemTemplate}
       onChange={onUserChange}
       optionLabel="name"
@@ -407,15 +424,36 @@ function IncidentsList() {
     />
   );
 
-  const statusFilterField = (
+  const priorityFilterField = (
     <Dropdown
+      value={selectedPriority}
+      options={PRIORITIES}
+      onChange={onPriorityChange}
+      placeholder="Prioridade"
+      className="p-column-filter"
+      showClear
+    />
+  );
+
+  const levelFilterField = (
+    <Dropdown
+      value={selectedLevel}
+      options={LEVELS}
+      onChange={onLevelChange}
+      placeholder="Nível"
+      className="p-column-filter"
+      showClear
+    />
+  );
+
+  const statusFilterField = (
+    <MultiSelect
       value={selectedStatus}
-      options={statuses}
+      options={STATUSES}
       itemTemplate={statusItemTemplate}
       onChange={onStatusChange}
       placeholder="Status"
       className="p-column-filter"
-      showClear
     />
   );
 
@@ -440,7 +478,7 @@ function IncidentsList() {
           rows={Math.floor(
             (windowHeight - INTERFACE_HEIGHT_WITHOUT_ROWS) / ROW_HEIGHT
           )}
-          header={Header(setGlobalFilter)}
+          header={Header(setGlobalFilter, createNewIncident)}
           className="p-datatable-sm  p-datatable-gridlines"
           globalFilter={globalFilter}
           emptyMessage="Nenhum incidente encontrado."
@@ -448,14 +486,16 @@ function IncidentsList() {
           <Column
             field="code"
             header="Código"
-            body={codeBodyTemplate}
+            body={defaultBody('Código', ({ code }) => String(code))}
             filter
             filterPlaceholder="Código"
           />
           <Column
             field="date"
             header="Data"
-            body={dateBodyTemplate}
+            body={defaultBody('Data', ({ date }) =>
+              new Intl.DateTimeFormat('pt-BR').format(date)
+            )}
             filter
             filterElement={dateFilterField}
             filterFunction={(value?: Date, filter?: Date) =>
@@ -465,7 +505,7 @@ function IncidentsList() {
           <Column
             field="description"
             header="Descrição"
-            body={descriptionBodyTemplate}
+            body={defaultBody('Descrição', ({ description }) => description)}
             filter
             filterPlaceholder="Descrição"
           />
@@ -479,16 +519,16 @@ function IncidentsList() {
           <Column
             field="priority"
             header="Prioridade"
-            body={priorityBodyTemplate}
+            body={defaultBody('Prioridade', ({ priority }) => priority)}
             filter
-            filterPlaceholder="Prioridade"
+            filterElement={priorityFilterField}
           />
           <Column
             field="level"
             header="Nível"
-            body={levelBodyTemplate}
+            body={defaultBody('Nível', ({ level }) => level)}
             filter
-            filterPlaceholder="Nível"
+            filterElement={levelFilterField}
           />
           <Column
             field="status"
