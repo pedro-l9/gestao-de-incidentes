@@ -26,11 +26,7 @@ interface Props {
   viewIncident: Function;
 }
 
-function IncidentsList({
-  createNewIncident,
-  editIncident,
-  viewIncident,
-}: Props) {
+function IncidentsList({ createNewIncident }: Props) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);

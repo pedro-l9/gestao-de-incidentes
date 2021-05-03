@@ -2,15 +2,7 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import {
-  Controller,
-  ControllerFieldState,
-  ControllerRenderProps,
-  FieldValues,
-  useForm,
-  useFormState,
-  UseFormStateReturn,
-} from 'react-hook-form';
+import { Controller, useForm, useFormState } from 'react-hook-form';
 
 import { PRIORITIES } from '../../constants';
 import { Button } from 'primereact/button';
@@ -20,14 +12,8 @@ interface Props {
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-interface FieldControllerProps {
-  field: ControllerRenderProps;
-  fieldState: ControllerFieldState;
-  formState: UseFormStateReturn<FieldValues>;
-}
-
 function IncidentDialog({ isDialogOpen, setDialogOpen }: Props) {
-  const { register, control, handleSubmit, reset } = useForm();
+  const { control, handleSubmit } = useForm();
   const { errors } = useFormState({ control });
 
   return (
