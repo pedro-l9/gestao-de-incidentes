@@ -1,6 +1,6 @@
 {
   "name": "gestao-de-incidentes",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "firebase": "^8.4.2",
