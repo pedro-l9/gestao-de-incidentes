@@ -13,7 +13,6 @@ import {
   defaultBody,
 } from './bodyTemplates';
 import { userItemTemplate, statusItemTemplate } from './selectItemTemplates';
-import { loadLocales } from './locales';
 import Header from './Header';
 import { LEVELS, PRIORITIES, STATUSES } from '../../constants';
 
@@ -391,8 +390,6 @@ function IncidentsList({ createNewIncident }: Props) {
     dataTable?.current?.filter(value, 'status', 'in');
     setSelectedStatus(value);
   }
-
-  loadLocales();
 
   const dateFilterField = (
     <Calendar

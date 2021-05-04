@@ -5,6 +5,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import './App.css';
+import { loadLocales } from './locales';
 import { Home, Login } from './pages';
 
 const firebaseConfig = {
@@ -17,6 +18,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+loadLocales();
 
 function App() {
   const [user, userIsLoading] = useAuthState(firebase.auth());
