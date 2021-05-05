@@ -1,5 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import { Toast } from 'primereact/toast';
+import { useRef } from 'react';
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -22,27 +24,35 @@ loadLocales();
 
 function App() {
   const [user, userIsLoading] = useAuthState(firebase.auth());
+  const toastRef = useRef<Toast>(null);
 
-  return userIsLoading ? (
-    <div
-      className="p-d-flex p-jc-center p-ai-center"
-      style={{ height: '100vh', width: '100vw', boxSizing: 'border-box' }}
-    >
-      <i
-        className="pi pi-spin pi-spinner"
-        style={{ fontSize: '2em', color: 'white' }}
-      ></i>
-    </div>
-  ) : (
-    <Router>
-      <Switch>
-        <Route exact path="/">
-          <div>
-            <section>{user ? <Home /> : <Login />}</section>
-          </div>
-        </Route>
-      </Switch>
-    </Router>
+  return (
+    <>
+      <Toast ref={toastRef} />
+      {userIsLoading ? (
+        <div
+          className="p-d-flex p-jc-center p-ai-center"
+          style={{ height: '100vh', width: '100vw', boxSizing: 'border-box' }}
+        >
+          <i
+            className="pi pi-spin pi-spinner"
+            style={{ fontSize: '2em', color: 'white' }}
+          ></i>
+        </div>
+      ) : (
+        <Router>
+          <Switch>
+            <Route exact path="/">
+              <div>
+                <section>
+                  {user ? <Home toastRef={toastRef} /> : <Login />}
+                </section>
+              </div>
+            </Route>
+          </Switch>
+        </Router>
+      )}
+    </>
   );
 }
 

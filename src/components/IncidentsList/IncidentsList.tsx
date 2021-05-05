@@ -1,9 +1,11 @@
 import { useState, useRef, useLayoutEffect } from 'react';
+import firebase from 'firebase/app';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { ChangeParams, MultiSelect } from 'primereact/multiselect';
+import { useCollectionData } from 'react-firebase-hooks/firestore';
 
 import './IncidentsList.css';
 import { Incident } from './interfaces';
@@ -11,6 +13,7 @@ import {
   userBodyTemplate,
   statusBodyTemplate,
   defaultBody,
+  codeBodyTemplate,
 } from './bodyTemplates';
 import { userItemTemplate, statusItemTemplate } from './selectItemTemplates';
 import Header from './Header';
@@ -33,338 +36,22 @@ function IncidentsList({ createNewIncident }: Props) {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [globalFilter, setGlobalFilter] = useState<string | null>(null);
   const dataTable = useRef<DataTable>(null);
-
-  const incidents: Incident[] = [
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Em Atendimento',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Em Aberto',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: 'HTpfdR9oNsNXoxlBqtnZwEmghis2',
-        name: 'Pedro Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-    {
-      code: 1,
-      date: new Date(),
-      description: 'asdasdasd',
-      user: {
-        uid: '123',
-        name: 'Paulo Henrique Lacerda',
-        avatarURL:
-          'https://lh3.googleusercontent.com/a-/AOh14GhlMpkbJQGfbgI5yxNjCoI0IBGiXBjIjyUaJ8UCcFg=s96-c',
-      },
-      priority: 'Baixa',
-      level: 'Nível 1',
-      status: 'Finalizado',
-    },
-  ];
+  const incidentsRef = firebase
+    .firestore()
+    .collection('incidents')
+    .orderBy('date');
+  const [incidents, loading] = useCollectionData<Incident>(incidentsRef, {
+    idField: 'id',
+  });
 
   const USERS = Object.values(
-    incidents.reduce(
+    incidents?.reduce(
       (uniqueUsers, { user }) => ({ ...uniqueUsers, [user.uid]: user }),
       {}
-    )
+    ) || {}
   );
+
+  console.log(incidents);
 
   function onDateChange({ value }: ChangeParams) {
     dataTable?.current?.filter(value, 'date', 'custom');
@@ -465,6 +152,7 @@ function IncidentsList({ createNewIncident }: Props) {
     <div>
       <div className="card">
         <DataTable
+          loading={loading}
           ref={dataTable}
           value={incidents}
           paginator
@@ -479,7 +167,7 @@ function IncidentsList({ createNewIncident }: Props) {
           <Column
             field="code"
             header="Código"
-            body={defaultBody('Código', ({ code }) => String(code))}
+            body={codeBodyTemplate}
             filter
             filterPlaceholder="Código"
           />
@@ -487,7 +175,7 @@ function IncidentsList({ createNewIncident }: Props) {
             field="date"
             header="Data"
             body={defaultBody('Data', ({ date }) =>
-              new Intl.DateTimeFormat('pt-BR').format(date)
+              new Intl.DateTimeFormat('pt-BR').format(date.toDate())
             )}
             filter
             filterElement={dateFilterField}

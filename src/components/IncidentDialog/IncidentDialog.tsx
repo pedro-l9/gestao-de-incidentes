@@ -1,9 +1,12 @@
 import firebase from 'firebase/app';
+import 'firebase/firestore';
+
 import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
+import { Toast } from 'primereact/toast';
 import {
   FilesParam,
   FileUpload,
@@ -22,9 +25,12 @@ import { Calendar } from 'primereact/calendar';
 import { useRef } from 'react';
 
 import './IncidentDialog.css';
+import Footer from './Footer';
+import { Incident } from '../IncidentsList/interfaces';
 interface Props {
   isDialogOpen: boolean;
   setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  toastRef: React.RefObject<Toast>;
 }
 
 function customItemTemplate(file: File, props: ItemTemplateOptions) {
@@ -44,24 +50,59 @@ function customItemTemplate(file: File, props: ItemTemplateOptions) {
   );
 }
 
-function IncidentDialog({ isDialogOpen, setDialogOpen }: Props) {
-  const { control, handleSubmit, register, reset, clearErrors } = useForm();
+function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
+  const { control, register, reset, clearErrors, getValues } = useForm();
   const { errors } = useFormState({ control });
   const [user] = useAuthState(firebase.auth());
   const uploadComponent = useRef<FileUpload>(null);
+  const incidentsRef = firebase.firestore().collection('incidents');
+
+  function submitForm() {
+    incidentsRef.add(formToIncident(getValues()));
+    toastRef?.current?.show({
+      severity: 'success',
+      summary: 'Sucesso!',
+      detail: 'Incidente registrado',
+      life: 1500,
+    });
+    hideDialog();
+  }
+
+  function formToIncident({
+    date,
+    priority,
+    status,
+    area,
+    level,
+    subject,
+    description,
+  }: FieldValues) {
+    const incident: Incident = {
+      date: firebase.firestore.Timestamp.fromDate(date),
+      priority,
+      status,
+      area,
+      level,
+      user: {
+        name: user?.displayName || 'Not found',
+        avatarURL: user?.photoURL || '',
+        uid: user?.uid || '0',
+      },
+      subject,
+      description,
+    };
+
+    return incident;
+  }
 
   function hideDialog() {
     setDialogOpen(false);
-    reset();
     clearErrors();
+    reset();
   }
 
   function onUpload(a: FilesParam) {
     console.log(JSON.stringify(a));
-  }
-
-  function onSubmit(fieldValues: FieldValues) {
-    alert(JSON.stringify(fieldValues));
   }
 
   return (
@@ -73,8 +114,9 @@ function IncidentDialog({ isDialogOpen, setDialogOpen }: Props) {
       draggable={false}
       resizable={false}
       closable={false}
+      footer={() => <Footer hideDialog={hideDialog} submitForm={submitForm} />}
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form>
         <div className="p-fluid p-formgrid p-grid">
           {/* Data */}
           <div className="p-field p-col-3">
@@ -261,29 +303,6 @@ function IncidentDialog({ isDialogOpen, setDialogOpen }: Props) {
               auto
             />
           </div>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            paddingTop: '1.5rem',
-          }}
-        >
-          <Button
-            label="Cancelar"
-            icon="pi pi-times"
-            onClick={hideDialog}
-            className="p-button-danger p-button-text"
-            type="button"
-          />
-          <Button
-            className="p-button-success p-button-raised"
-            label="Criar"
-            icon="pi pi-check"
-            type="submit"
-          />
         </div>
       </form>
     </Dialog>

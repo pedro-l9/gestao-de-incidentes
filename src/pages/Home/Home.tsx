@@ -3,12 +3,16 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import { Card } from 'primereact/card';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { Toast } from 'primereact/toast';
 
 import { IncidentDialog, IncidentsList, Navbar } from '../../components';
-
 import './Home.css';
 
-function Home() {
+interface Props {
+  toastRef: React.RefObject<Toast>;
+}
+
+function Home({ toastRef }: Props) {
   const [user] = useAuthState(firebase.auth());
   const [isDialogOpen, setDialogOpen] = useState(false);
 
@@ -21,6 +25,7 @@ function Home() {
         <IncidentDialog
           isDialogOpen={isDialogOpen}
           setDialogOpen={setDialogOpen}
+          toastRef={toastRef}
         />
         <IncidentsList
           createNewIncident={() => setDialogOpen(true)}

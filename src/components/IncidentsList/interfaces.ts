@@ -1,3 +1,5 @@
+import firebase from 'firebase';
+
 export interface User {
   name: string;
   avatarURL: string;
@@ -5,11 +7,13 @@ export interface User {
 }
 
 export interface Incident {
-  code: number;
-  date: Date;
+  id?: string;
+  date: firebase.firestore.Timestamp;
+  priority: string;
+  status: string;
+  area: string;
+  level: string;
+  subject: string;
   description: string;
   user: User;
-  priority: string;
-  level: string;
-  status: string;
 }

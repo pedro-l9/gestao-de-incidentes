@@ -8,6 +8,11 @@
   text-align: center;
 }
 
+.p-datatable-loading-overlay {
+  margin-top: 166px;
+  background-color: transparent;
+}
+
 .p-multiselect-header {
   display: none;
 }

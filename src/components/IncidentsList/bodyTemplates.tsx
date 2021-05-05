@@ -19,6 +19,13 @@ export const defaultBody = (
   </div>
 );
 
+export const codeBodyTemplate = ({ id }: Incident) => (
+  <div className={'code-body-value'}>
+    <span className="p-column-title">Código</span>
+    {id?.substring(0, 7)}
+  </div>
+);
+
 export const userBodyTemplate = ({ user }: Incident) => {
   return (
     <>
