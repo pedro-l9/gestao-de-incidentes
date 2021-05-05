@@ -4,13 +4,22 @@
 .data-body-value,
 .prioridade-body-value,
 .nivel-body-value,
-.status-body-value {
+.status-body-value,
+.descricao-body-value {
   text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: left;
 }
 
 .p-datatable-loading-overlay {
   margin-top: 166px;
   background-color: transparent;
+}
+
+.p-datepicker-buttonbar button:first-child {
+  display: none;
 }
 
 .p-multiselect-header {

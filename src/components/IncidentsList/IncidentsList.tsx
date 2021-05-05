@@ -39,7 +39,7 @@ function IncidentsList({ createNewIncident }: Props) {
   const incidentsRef = firebase
     .firestore()
     .collection('incidents')
-    .orderBy('date');
+    .orderBy('date', 'desc');
   const [incidents, loading] = useCollectionData<Incident>(incidentsRef, {
     idField: 'id',
   });
@@ -50,8 +50,6 @@ function IncidentsList({ createNewIncident }: Props) {
       {}
     ) || {}
   );
-
-  console.log(incidents);
 
   function onDateChange({ value }: ChangeParams) {
     dataTable?.current?.filter(value, 'date', 'custom');
@@ -182,6 +180,7 @@ function IncidentsList({ createNewIncident }: Props) {
             filterFunction={(value?: Date, filter?: Date) =>
               value?.toLocaleDateString() === filter?.toLocaleDateString()
             }
+            sortable
           />
           <Column
             field="description"
