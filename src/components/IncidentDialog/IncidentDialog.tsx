@@ -5,13 +5,13 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
-import { Button } from 'primereact/button';
+// import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
-import {
-  FilesParam,
-  FileUpload,
-  ItemTemplateOptions,
-} from 'primereact/fileupload';
+// import {
+//   FilesParam,
+//   FileUpload,
+//   ItemTemplateOptions,
+// } from 'primereact/fileupload';
 import {
   Controller,
   FieldValues,
@@ -22,43 +22,57 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 import { LEVELS, PRIORITIES, STATUSES, AREAS } from '../../constants';
 import { Calendar } from 'primereact/calendar';
-import { useRef } from 'react';
+// import { useRef } from 'react';
 
 import './IncidentDialog.css';
 import Footer from './Footer';
 import { Incident } from '../IncidentsList/interfaces';
 interface Props {
+  selectedIncident?: Incident;
+  onDialogClose: Function;
+  canEdit: boolean;
   isDialogOpen: boolean;
-  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
   toastRef: React.RefObject<Toast>;
 }
 
-function customItemTemplate(file: File, props: ItemTemplateOptions) {
-  return (
-    <div className="p-fluid p-grid">
-      <div className="p-col-6 file-name">{file.name}</div>
-      <div className="p-col-4">{props.formatSize}</div>
-      <div className="p-col-2">
-        <Button
-          icon="pi pi-times"
-          className="p-button-danger p-button-raised"
-          type="button"
-          onClick={(e) => props.onRemove(e)}
-        />
-      </div>
-    </div>
-  );
-}
+// function customItemTemplate(file: File, props: ItemTemplateOptions) {
+//   return (
+//     <div className="p-fluid p-grid">
+//       <div className="p-col-6 file-name">{file.name}</div>
+//       <div className="p-col-4">{props.formatSize}</div>
+//       <div className="p-col-2">
+//         <Button
+//           icon="pi pi-times"
+//           className="p-button-danger p-button-raised"
+//           type="button"
+//           onClick={(e) => props.onRemove(e)}
+//         />
+//       </div>
+//     </div>
+//   );
+// }
 
-function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
+function IncidentDialog({
+  selectedIncident,
+  onDialogClose,
+  canEdit,
+  isDialogOpen,
+  toastRef,
+}: Props) {
   const { control, register, reset, clearErrors, getValues } = useForm();
   const { errors } = useFormState({ control });
   const [user] = useAuthState(firebase.auth());
-  const uploadComponent = useRef<FileUpload>(null);
-  const incidentsRef = firebase.firestore().collection('incidents');
+  // const uploadComponent = useRef<FileUpload>(null);
+  const incidentsCollection = firebase.firestore().collection('incidents');
 
-  function submitForm() {
-    incidentsRef.add(formToIncident(getValues()));
+  function hideDialog() {
+    onDialogClose();
+    clearErrors();
+    reset();
+  }
+
+  async function submitForm() {
+    incidentsCollection.add(formToIncident(getValues()));
     toastRef?.current?.show({
       severity: 'success',
       summary: 'Sucesso!',
@@ -95,26 +109,26 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
     return incident;
   }
 
-  function hideDialog() {
-    setDialogOpen(false);
-    clearErrors();
-    reset();
-  }
-
-  function onUpload(a: FilesParam) {
-    console.log(JSON.stringify(a));
-  }
+  // function onUpload(a: FilesParam) {
+  //   console.log(JSON.stringify(a));
+  // }
 
   return (
     <Dialog
-      header="Novo Incidente"
+      header="Incidente"
       visible={isDialogOpen}
       style={{ width: '600px' }}
       onHide={hideDialog}
       draggable={false}
       resizable={false}
       closable={false}
-      footer={() => <Footer hideDialog={hideDialog} submitForm={submitForm} />}
+      footer={() => (
+        <Footer
+          isEditing={canEdit}
+          hideDialog={hideDialog}
+          submitForm={submitForm}
+        />
+      )}
     >
       <form>
         <div className="p-fluid p-formgrid p-grid">
@@ -126,7 +140,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
             <Controller
               name="date"
               control={control}
-              defaultValue={new Date()}
+              defaultValue={selectedIncident?.date.toDate() ?? new Date()}
               rules={{ required: true }}
               render={({ field }) => (
                 <Calendar
@@ -135,6 +149,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
                   dateFormat="dd/mm/yy"
                   locale="pt-BR"
                   className={errors.date ? 'p-invalid' : ''}
+                  disabled={!canEdit}
                   showButtonBar
                 />
               )}
@@ -152,7 +167,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
             <Controller
               name="priority"
               control={control}
-              defaultValue={null}
+              defaultValue={selectedIncident?.priority}
               rules={{ required: true }}
               render={({ field }) => (
                 <Dropdown
@@ -162,6 +177,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
                   options={PRIORITIES}
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.priority ? 'p-invalid' : ''}
+                  disabled={!canEdit}
                   showClear
                 />
               )}
@@ -176,7 +192,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
             <Controller
               name="status"
               control={control}
-              defaultValue={null}
+              defaultValue={selectedIncident?.status}
               rules={{ required: true }}
               render={({ field }) => (
                 <Dropdown
@@ -187,6 +203,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
                   options={STATUSES}
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.status ? 'p-invalid' : ''}
+                  disabled={!canEdit}
                   showClear
                 />
               )}
@@ -201,7 +218,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
             <Controller
               name="area"
               control={control}
-              defaultValue={null}
+              defaultValue={selectedIncident?.area}
               rules={{ required: true }}
               render={({ field }) => (
                 <Dropdown
@@ -210,6 +227,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
                   options={AREAS}
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.area ? 'p-invalid' : ''}
+                  disabled={!canEdit}
                   showClear
                 />
               )}
@@ -224,7 +242,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
             <Controller
               name="level"
               control={control}
-              defaultValue={null}
+              defaultValue={selectedIncident?.level}
               rules={{ required: true }}
               render={({ field }) => (
                 <Dropdown
@@ -233,6 +251,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
                   options={LEVELS}
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.level ? 'p-invalid' : ''}
+                  disabled={!canEdit}
                   showClear
                 />
               )}
@@ -243,7 +262,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
           <div className="p-field p-col-4">
             <label htmlFor="user">Usuário</label>
             <InputText
-              value={user?.displayName || ''}
+              value={selectedIncident?.user.name ?? user?.displayName ?? ''}
               id="user"
               type="text"
               disabled
@@ -263,6 +282,8 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
               className={errors.subject ? 'p-invalid' : ''}
               type="text"
               maxLength={70}
+              defaultValue={selectedIncident?.subject}
+              disabled={!canEdit}
             />
           </div>
 
@@ -277,13 +298,16 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
             <InputTextarea
               {...register('description', { required: true, maxLength: 700 })}
               className={errors.description ? 'p-invalid' : ''}
+              rows={14}
               autoResize
               maxLength={700}
+              defaultValue={selectedIncident?.description}
+              disabled={!canEdit}
             />
           </div>
 
           {/* Arquivos */}
-          <div className="p-col-12">
+          {/* <div className="p-col-12">
             <FileUpload
               ref={uploadComponent}
               chooseLabel="Selecionar"
@@ -302,7 +326,7 @@ function IncidentDialog({ isDialogOpen, setDialogOpen, toastRef }: Props) {
               customUpload
               auto
             />
-          </div>
+          </div> */}
         </div>
       </form>
     </Dialog>

@@ -35,7 +35,7 @@ export const userBodyTemplate = ({ user }: Incident) => {
         style={{ verticalAlign: 'middle', marginRight: '5px' }}
         shape="circle"
       />
-      <span className="image-text">{user.name}</span>
+      <span>{user.name}</span>
     </>
   );
 };

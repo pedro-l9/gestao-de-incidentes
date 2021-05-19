@@ -23,12 +23,16 @@ const INTERFACE_HEIGHT_WITHOUT_ROWS = 360;
 const ROW_HEIGHT = 50;
 
 interface Props {
+  selectedIncident?: Incident;
+  viewIncident: (incident: Incident) => void;
   createNewIncident: Function;
-  editIncident: Function;
-  viewIncident: Function;
 }
 
-function IncidentsList({ createNewIncident }: Props) {
+function IncidentsList({
+  selectedIncident,
+  viewIncident,
+  createNewIncident,
+}: Props) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
@@ -36,20 +40,25 @@ function IncidentsList({ createNewIncident }: Props) {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [globalFilter, setGlobalFilter] = useState<string | null>(null);
   const dataTable = useRef<DataTable>(null);
-  const incidentsRef = firebase
+  const incidentsCollection = firebase
     .firestore()
     .collection('incidents')
     .orderBy('date', 'desc');
-  const [incidents, loading] = useCollectionData<Incident>(incidentsRef, {
-    idField: 'id',
-  });
+  const [incidents, loading] = useCollectionData<Incident>(
+    incidentsCollection,
+    {
+      idField: 'id',
+    }
+  );
 
   const USERS = Object.values(
     incidents?.reduce(
-      (uniqueUsers, { user }) => ({ ...uniqueUsers, [user.uid]: user }),
+      (uniqueUsers, { user }) => ({ ...uniqueUsers, [user.name]: user }),
       {}
     ) || {}
   );
+
+  //#region onChange handlers
 
   function onDateChange({ value }: ChangeParams) {
     dataTable?.current?.filter(value, 'date', 'custom');
@@ -57,7 +66,7 @@ function IncidentsList({ createNewIncident }: Props) {
   }
 
   function onUserChange({ value }: ChangeParams) {
-    dataTable?.current?.filter(value, 'user.uid', 'equals');
+    dataTable?.current?.filter(value, 'user.name', 'equals');
     setSelectedUser(value);
   }
 
@@ -75,6 +84,10 @@ function IncidentsList({ createNewIncident }: Props) {
     dataTable?.current?.filter(value, 'status', 'in');
     setSelectedStatus(value);
   }
+
+  //#endregion
+
+  //#region filterFields
 
   const dateFilterField = (
     <Calendar
@@ -95,7 +108,7 @@ function IncidentsList({ createNewIncident }: Props) {
       itemTemplate={userItemTemplate}
       onChange={onUserChange}
       optionLabel="name"
-      optionValue="uid"
+      optionValue="name"
       placeholder="Todos"
       className="p-column-filter"
       showClear
@@ -135,6 +148,8 @@ function IncidentsList({ createNewIncident }: Props) {
     />
   );
 
+  //#endregion
+
   const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
   useLayoutEffect(() => {
@@ -150,6 +165,11 @@ function IncidentsList({ createNewIncident }: Props) {
     <div>
       <div className="card">
         <DataTable
+          selectionMode="single"
+          selection={selectedIncident}
+          onSelectionChange={({ value: incident }) => {
+            viewIncident(incident);
+          }}
           loading={loading}
           ref={dataTable}
           value={incidents}
@@ -177,8 +197,12 @@ function IncidentsList({ createNewIncident }: Props) {
             )}
             filter
             filterElement={dateFilterField}
-            filterFunction={(value?: Date, filter?: Date) =>
-              value?.toLocaleDateString() === filter?.toLocaleDateString()
+            filterFunction={(
+              value?: firebase.firestore.Timestamp,
+              filter?: Date
+            ) =>
+              value?.toDate().toLocaleDateString() ===
+              filter?.toLocaleDateString()
             }
             sortable
           />
@@ -190,7 +214,7 @@ function IncidentsList({ createNewIncident }: Props) {
             filterPlaceholder="Descrição"
           />
           <Column
-            field="user.uid"
+            field="user.name"
             header="Usuário"
             body={userBodyTemplate}
             filter

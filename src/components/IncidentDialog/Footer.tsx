@@ -1,11 +1,12 @@
 import { Button } from 'primereact/button';
 
 interface Props {
+  isEditing: boolean;
   hideDialog: React.MouseEventHandler<HTMLButtonElement>;
   submitForm: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-function Footer({ hideDialog, submitForm }: Props) {
+function Footer({ isEditing, hideDialog, submitForm }: Props) {
   return (
     <div
       style={{
@@ -15,20 +16,32 @@ function Footer({ hideDialog, submitForm }: Props) {
         paddingTop: '1.5rem',
       }}
     >
-      <Button
-        label="Cancelar"
-        icon="pi pi-times"
-        onClick={hideDialog}
-        className="p-button-danger p-button-text"
-        type="button"
-      />
-      <Button
-        className="p-button-success p-button-raised"
-        label="Criar"
-        icon="pi pi-check"
-        type="button"
-        onClick={submitForm}
-      />
+      {isEditing ? (
+        <>
+          <Button
+            label="Cancelar"
+            icon="pi pi-times"
+            onClick={hideDialog}
+            className="p-button-danger p-button-text"
+            type="button"
+          />
+          <Button
+            className="p-button-success p-button-raised"
+            label="Salvar"
+            icon="pi pi-check"
+            type="button"
+            onClick={submitForm}
+          />
+        </>
+      ) : (
+        <Button
+          label="Fechar"
+          icon="pi pi-times"
+          onClick={hideDialog}
+          className="p-button-danger p-button-text"
+          type="button"
+        />
+      )}
     </div>
   );
 }

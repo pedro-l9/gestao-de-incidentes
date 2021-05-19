@@ -7,6 +7,7 @@ import { Toast } from 'primereact/toast';
 
 import { IncidentDialog, IncidentsList, Navbar } from '../../components';
 import './Home.css';
+import { Incident } from '../../components/IncidentsList/interfaces';
 
 interface Props {
   toastRef: React.RefObject<Toast>;
@@ -15,6 +16,26 @@ interface Props {
 function Home({ toastRef }: Props) {
   const [user] = useAuthState(firebase.auth());
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [selectedIncident, setSelectedIncident] = useState<
+    Incident | undefined
+  >();
+  const [canEditIncident, setCanEditIncident] = useState(true);
+
+  function onDialogClose() {
+    setSelectedIncident(undefined);
+    setDialogOpen(false);
+  }
+
+  function createNewIncident() {
+    setCanEditIncident(true);
+    setDialogOpen(true);
+  }
+
+  function viewIncident(incident: Incident) {
+    setSelectedIncident(incident);
+    setCanEditIncident(false);
+    setDialogOpen(true);
+  }
 
   return (
     <div
@@ -23,14 +44,16 @@ function Home({ toastRef }: Props) {
     >
       <Card header={Navbar(user)}>
         <IncidentDialog
+          onDialogClose={onDialogClose}
+          selectedIncident={selectedIncident}
+          canEdit={canEditIncident}
           isDialogOpen={isDialogOpen}
-          setDialogOpen={setDialogOpen}
           toastRef={toastRef}
         />
         <IncidentsList
-          createNewIncident={() => setDialogOpen(true)}
-          viewIncident={() => setDialogOpen(true)}
-          editIncident={() => setDialogOpen(true)}
+          selectedIncident={selectedIncident}
+          createNewIncident={createNewIncident}
+          viewIncident={viewIncident}
         />
       </Card>
     </div>
