@@ -1,9 +1,16 @@
 import firebase from 'firebase';
 
 export interface User {
+  uid: string;
   name: string;
   avatarURL: string;
+}
+
+export interface Technician {
   uid: string;
+  name: string;
+  avatarURL: string;
+  area: string;
 }
 
 export interface Incident {
@@ -16,4 +23,7 @@ export interface Incident {
   subject: string;
   description: string;
   user: User;
+  owner: Technician;
 }
+
+export type FormState = 'isEditing' | 'isCreating' | 'isVisualizing';

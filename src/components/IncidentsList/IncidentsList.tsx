@@ -5,17 +5,20 @@ import { Column } from 'primereact/column';
 import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { ChangeParams, MultiSelect } from 'primereact/multiselect';
-import { useCollectionData } from 'react-firebase-hooks/firestore';
+import {
+  useCollectionData,
+  useCollectionDataOnce,
+} from 'react-firebase-hooks/firestore';
 
 import './IncidentsList.css';
-import { Incident } from './interfaces';
+import { Incident, Technician } from './model';
 import {
-  userBodyTemplate,
+  ownerBodyTemplate,
   statusBodyTemplate,
   defaultBody,
   codeBodyTemplate,
 } from './bodyTemplates';
-import { userItemTemplate, statusItemTemplate } from './selectItemTemplates';
+import { ownerItemTemplate, statusItemTemplate } from './selectItemTemplates';
 import Header from './Header';
 import { LEVELS, PRIORITIES, STATUSES } from '../../constants';
 
@@ -23,8 +26,8 @@ const INTERFACE_HEIGHT_WITHOUT_ROWS = 360;
 const ROW_HEIGHT = 50;
 
 interface Props {
-  selectedIncident?: Incident;
-  viewIncident: (incident: Incident) => void;
+  selectedIncident?: Required<Incident>;
+  viewIncident: (incident: Required<Incident>) => void;
   createNewIncident: Function;
 }
 
@@ -34,16 +37,20 @@ function IncidentsList({
   createNewIncident,
 }: Props) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState<string | null>(null);
   const [selectedPriority, setSelectedPriority] = useState<string | null>(null);
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [globalFilter, setGlobalFilter] = useState<string | null>(null);
   const dataTable = useRef<DataTable>(null);
+
   const incidentsCollection = firebase
     .firestore()
     .collection('incidents')
     .orderBy('date', 'desc');
+
+  const techniciansCollection = firebase.firestore().collection('technicians');
+
   const [incidents, loading] = useCollectionData<Incident>(
     incidentsCollection,
     {
@@ -51,11 +58,11 @@ function IncidentsList({
     }
   );
 
-  const USERS = Object.values(
-    incidents?.reduce(
-      (uniqueUsers, { user }) => ({ ...uniqueUsers, [user.name]: user }),
-      {}
-    ) || {}
+  const [technicians] = useCollectionDataOnce<Technician>(
+    techniciansCollection,
+    {
+      idField: 'uid',
+    }
   );
 
   //#region onChange handlers
@@ -65,9 +72,9 @@ function IncidentsList({
     setSelectedDate(value);
   }
 
-  function onUserChange({ value }: ChangeParams) {
-    dataTable?.current?.filter(value, 'user.name', 'equals');
-    setSelectedUser(value);
+  function onOwnerChange({ value }: ChangeParams) {
+    dataTable?.current?.filter(value, 'owner.name', 'equals');
+    setSelectedOwner(value);
   }
 
   function onPriorityChange({ value }: ChangeParams) {
@@ -103,10 +110,10 @@ function IncidentsList({
 
   const userFilterField = (
     <Dropdown
-      value={selectedUser}
-      options={USERS}
-      itemTemplate={userItemTemplate}
-      onChange={onUserChange}
+      value={selectedOwner}
+      options={technicians}
+      itemTemplate={ownerItemTemplate}
+      onChange={onOwnerChange}
       optionLabel="name"
       optionValue="name"
       placeholder="Todos"
@@ -214,9 +221,9 @@ function IncidentsList({
             filterPlaceholder="Descrição"
           />
           <Column
-            field="user.name"
-            header="Usuário"
-            body={userBodyTemplate}
+            field="owner.name"
+            header="Responsável"
+            body={ownerBodyTemplate}
             filter
             filterElement={userFilterField}
           />
@@ -226,6 +233,7 @@ function IncidentsList({
             body={defaultBody('Prioridade', ({ priority }) => priority)}
             filter
             filterElement={priorityFilterField}
+            sortable
           />
           <Column
             field="level"
@@ -233,6 +241,7 @@ function IncidentsList({
             body={defaultBody('Nível', ({ level }) => level)}
             filter
             filterElement={levelFilterField}
+            sortable
           />
           <Column
             field="status"

@@ -7,7 +7,7 @@ import { Toast } from 'primereact/toast';
 
 import { IncidentDialog, IncidentsList, Navbar } from '../../components';
 import './Home.css';
-import { Incident } from '../../components/IncidentsList/interfaces';
+import { FormState, Incident } from '../../components/IncidentsList/model';
 
 interface Props {
   toastRef: React.RefObject<Toast>;
@@ -17,9 +17,11 @@ function Home({ toastRef }: Props) {
   const [user] = useAuthState(firebase.auth());
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<
-    Incident | undefined
+    Required<Incident> | undefined
   >();
-  const [canEditIncident, setCanEditIncident] = useState(true);
+  const [incidentFormState, setIncidentFormState] = useState<FormState>(
+    'isVisualizing'
+  );
 
   function onDialogClose() {
     setSelectedIncident(undefined);
@@ -27,13 +29,13 @@ function Home({ toastRef }: Props) {
   }
 
   function createNewIncident() {
-    setCanEditIncident(true);
+    setIncidentFormState('isCreating');
     setDialogOpen(true);
   }
 
-  function viewIncident(incident: Incident) {
+  function viewIncident(incident: Required<Incident>) {
     setSelectedIncident(incident);
-    setCanEditIncident(false);
+    setIncidentFormState('isVisualizing');
     setDialogOpen(true);
   }
 
@@ -46,7 +48,8 @@ function Home({ toastRef }: Props) {
         <IncidentDialog
           onDialogClose={onDialogClose}
           selectedIncident={selectedIncident}
-          canEdit={canEditIncident}
+          formState={incidentFormState}
+          setFormState={setIncidentFormState}
           isDialogOpen={isDialogOpen}
           toastRef={toastRef}
         />

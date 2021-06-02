@@ -1,12 +1,21 @@
 import { Button } from 'primereact/button';
+import { FormState } from '../IncidentsList/model';
 
 interface Props {
-  isEditing: boolean;
+  userCanEdit: boolean;
+  formState: FormState;
   hideDialog: React.MouseEventHandler<HTMLButtonElement>;
   submitForm: React.MouseEventHandler<HTMLButtonElement>;
+  editIncident: React.MouseEventHandler<HTMLButtonElement>;
 }
 
-function Footer({ isEditing, hideDialog, submitForm }: Props) {
+function Footer({
+  userCanEdit,
+  formState,
+  hideDialog,
+  submitForm,
+  editIncident,
+}: Props) {
   return (
     <div
       style={{
@@ -16,7 +25,7 @@ function Footer({ isEditing, hideDialog, submitForm }: Props) {
         paddingTop: '1.5rem',
       }}
     >
-      {isEditing ? (
+      {formState === 'isEditing' || formState === 'isCreating' ? (
         <>
           <Button
             label="Cancelar"
@@ -34,13 +43,25 @@ function Footer({ isEditing, hideDialog, submitForm }: Props) {
           />
         </>
       ) : (
-        <Button
-          label="Fechar"
-          icon="pi pi-times"
-          onClick={hideDialog}
-          className="p-button-danger p-button-text"
-          type="button"
-        />
+        <>
+          {userCanEdit && (
+            <Button
+              className="p-button-success p-button-raised"
+              label="Editar"
+              icon="pi pi-check"
+              type="button"
+              onClick={editIncident}
+            />
+          )}
+
+          <Button
+            label="Fechar"
+            icon="pi pi-times"
+            onClick={hideDialog}
+            className="p-button-danger p-button-text"
+            type="button"
+          />
+        </>
       )}
     </div>
   );

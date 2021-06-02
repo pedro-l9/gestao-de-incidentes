@@ -123,6 +123,12 @@
   width: 100%;
 }
 
+.p-datatable.p-datatable-sm .p-datatable-tbody td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .p-datatable.p-datatable-sm .p-datatable-tbody .p-datatable-emptymessage td {
   text-align: center;
   padding: 20px;

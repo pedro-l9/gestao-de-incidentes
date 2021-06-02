@@ -1,6 +1,6 @@
 import { Avatar } from 'primereact/avatar';
 
-import { Incident } from './interfaces';
+import { Incident } from './model';
 
 type TransforFunction = (value: Incident) => string;
 
@@ -26,16 +26,16 @@ export const codeBodyTemplate = ({ id }: Incident) => (
   </div>
 );
 
-export const userBodyTemplate = ({ user }: Incident) => {
+export const ownerBodyTemplate = ({ owner }: Incident) => {
   return (
     <>
       <span className="p-column-title">Usuário</span>
       <Avatar
-        image={user.avatarURL}
+        image={owner.avatarURL}
         style={{ verticalAlign: 'middle', marginRight: '5px' }}
         shape="circle"
       />
-      <span>{user.name}</span>
+      <span>{owner.name}</span>
     </>
   );
 };
