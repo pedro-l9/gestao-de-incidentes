@@ -312,7 +312,6 @@ function IncidentDialog({
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.priority ? 'p-invalid' : ''}
                   disabled={!['isCreating', 'isEditing'].includes(formState)}
-                  showClear
                 />
               )}
             />
@@ -338,7 +337,6 @@ function IncidentDialog({
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.status ? 'p-invalid' : ''}
                   disabled={!['isEditing'].includes(formState)}
-                  showClear
                 />
               )}
             />
@@ -352,6 +350,7 @@ function IncidentDialog({
             <Controller
               name="area"
               control={control}
+              defaultValue={selectedIncident?.area}
               rules={{ required: true }}
               render={({ field }) => (
                 <Dropdown
@@ -383,7 +382,6 @@ function IncidentDialog({
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.level ? 'p-invalid' : ''}
                   disabled={!['isCreating', 'isEditing'].includes(formState)}
-                  showClear
                 />
               )}
             />
@@ -406,7 +404,6 @@ function IncidentDialog({
                   onChange={(e) => field.onChange(e.value)}
                   className={errors.owner ? 'p-invalid' : ''}
                   disabled={!['isEditing'].includes(formState)}
-                  showClear
                 />
               )}
             />
